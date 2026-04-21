@@ -11,6 +11,7 @@ import { ProfileCard } from "@/components/ProfileCard";
 import { LoopFlow } from "@/components/LoopFlow";
 import { PredictionsTab } from "@/components/PredictionsTab";
 import { CreateMarketPanel } from "@/components/CreateMarketPanel";
+import { NetworkGuard } from "@/components/NetworkGuard";
 import { LeaderboardTab } from "@/components/LeaderboardTab";
 import { AnalyticsTab } from "@/components/AnalyticsTab";
 import { useUSDCBalance, useReputation } from "@/hooks/useProtocol";
@@ -168,6 +169,7 @@ export default function Home() {
       <div className={`flex min-h-screen ${dark ? "bg-gray-950 text-white" : "bg-gray-50 text-gray-900"}`}>
         <Sidebar tab={tab} setTab={setTabPersisted} score={score} mobileOpen={mobileOpen} setMobileOpen={setMobileOpen} />
         <div className="flex-1 flex flex-col min-w-0">
+          <NetworkGuard />
           {/* Mobile topbar */}
           <div className={`lg:hidden h-14 flex items-center justify-between px-4 border-b ${dark ? "bg-gray-950 border-gray-800" : "bg-white border-gray-200"}`}>
             <button onClick={() => setMobileOpen(true)} className={dark ? "text-gray-400" : "text-gray-500"}>
