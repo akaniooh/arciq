@@ -1,8 +1,11 @@
 "use client";
 import { useState } from "react";
+import { useChainId, useSwitchChain } from "wagmi";
 import { useVaultData, useDeposit, useWithdraw } from "@/hooks/useProtocol";
 import { formatUSDC, parseUSDC } from "@/lib/contracts";
 import { useTheme } from "@/lib/theme";
+
+const ARC_CHAIN_ID = 5042002;
 
 export function VaultCard() {
   const { collateral, freeCollateral, locked, refetch } = useVaultData();
@@ -22,9 +25,18 @@ export function VaultCard() {
   const tabActive = dark ? "bg-gray-700 text-white shadow-sm" : "bg-white text-gray-900 shadow-sm";
   const tabInactive = dark ? "text-gray-500" : "text-gray-400";
 
+  const chainId = useChainId();
+  const { switchChain, isPending: switching } = useSwitchChain();
+  const isWrongNetwork = chainId !== ARC_CHAIN_ID;
+
   async function handleDeposit() {
     if (!amount) return;
     try {
+      if (isWrongNetwork) {
+        setStatus("Switching to Arc Testnet…");
+        await switchChain({ chainId: ARC_CHAIN_ID });
+        await new Promise(r => setTimeout(r, 1500));
+      }
       setStatus("Approving…");
       await approve(parseUSDC(amount));
       setStatus("Depositing…");
@@ -37,6 +49,11 @@ export function VaultCard() {
   async function handleWithdraw() {
     if (!amount) return;
     try {
+      if (isWrongNetwork) {
+        setStatus("Switching to Arc Testnet…");
+        await switchChain({ chainId: ARC_CHAIN_ID });
+        await new Promise(r => setTimeout(r, 1500));
+      }
       setStatus("Withdrawing…");
       await withdraw(parseUSDC(amount));
       setStatus("Withdrawn ✓");
@@ -68,13 +85,23 @@ export function VaultCard() {
         onChange={e => setAmount(e.target.value)}
         className={`w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2 ${inp}`}
       />
-      <button
-        onClick={tab === "deposit" ? handleDeposit : handleWithdraw}
-        disabled={depositPending || withdrawPending || !amount}
-        className="w-full py-2.5 bg-blue-600 text-white text-sm font-bold rounded-lg hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-      >
-        {depositPending || withdrawPending ? "Processing…" : tab === "deposit" ? "Deposit" : "Withdraw"}
-      </button>
+      {isWrongNetwork ? (
+        <button
+          onClick={() => switchChain({ chainId: ARC_CHAIN_ID })}
+          disabled={switching}
+          className="w-full py-2.5 bg-yellow-500 text-gray-900 text-sm font-bold rounded-lg hover:bg-yellow-400 disabled:opacity-50 transition-colors"
+        >
+          {switching ? "Switching network…" : "Switch to Arc Testnet first"}
+        </button>
+      ) : (
+        <button
+          onClick={tab === "deposit" ? handleDeposit : handleWithdraw}
+          disabled={depositPending || withdrawPending || !amount}
+          className="w-full py-2.5 bg-blue-600 text-white text-sm font-bold rounded-lg hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+        >
+          {depositPending || withdrawPending ? "Processing…" : tab === "deposit" ? "Deposit" : "Withdraw"}
+        </button>
+      )}
 
       {status && <div className={`mt-2 text-xs ${sub}`}>{status}</div>}
     </div>

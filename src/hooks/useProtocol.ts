@@ -1,12 +1,25 @@
 "use client";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useAccount, useReadContract, useWriteContract, useReadContracts, useBalance } from "wagmi";
+import { useAccount, useReadContract, useWriteContract, useReadContracts, useBalance, useSwitchChain, useChainId } from "wagmi";
 import {
   CONTRACTS, VAULT_ABI, REPUTATION_ABI, MARKET_ABI, LENDING_ABI, ERC20_ABI,
 } from "@/lib/contracts";
 
 const CHAIN_ID = 5042002;
+
+// Auto-switch to Arc Testnet before any write
+async function ensureArcNetwork(chainId: number, switchChain: any) {
+  if (chainId !== CHAIN_ID) {
+    try {
+      await switchChain({ chainId: CHAIN_ID });
+      // Wait for wallet to confirm the switch
+      await new Promise(resolve => setTimeout(resolve, 1500));
+    } catch (e) {
+      throw new Error("Please switch to Arc Testnet (Chain ID 5042002) in your wallet to continue.");
+    }
+  }
+}
 
 // ── Vault ──────────────────────────────────────────────────────────────────
 
@@ -30,17 +43,27 @@ export function useVaultData() {
 
 export function useDeposit() {
   const { writeContractAsync, isPending } = useWriteContract();
-  const approve = async (amount: bigint) =>
-    (writeContractAsync as any)({ chainId: CHAIN_ID, address: CONTRACTS.usdc, abi: ERC20_ABI, functionName: "approve", args: [CONTRACTS.vault, amount] });
-  const deposit = async (amount: bigint) =>
-    (writeContractAsync as any)({ chainId: CHAIN_ID, address: CONTRACTS.vault, abi: VAULT_ABI, functionName: "deposit", args: [amount] });
+  const chainId = useChainId();
+  const { switchChain } = useSwitchChain();
+  const approve = async (amount: bigint) => {
+    await ensureArcNetwork(chainId, switchChain);
+    return (writeContractAsync as any)({ chainId: CHAIN_ID, address: CONTRACTS.usdc, abi: ERC20_ABI, functionName: "approve", args: [CONTRACTS.vault, amount] });
+  };
+  const deposit = async (amount: bigint) => {
+    await ensureArcNetwork(chainId, switchChain);
+    return (writeContractAsync as any)({ chainId: CHAIN_ID, address: CONTRACTS.vault, abi: VAULT_ABI, functionName: "deposit", args: [amount] });
+  };
   return { approve, deposit, isPending };
 }
 
 export function useWithdraw() {
   const { writeContractAsync, isPending } = useWriteContract();
-  const withdraw = async (amount: bigint) =>
-    (writeContractAsync as any)({ chainId: CHAIN_ID, address: CONTRACTS.vault, abi: VAULT_ABI, functionName: "withdraw", args: [amount] });
+  const chainId = useChainId();
+  const { switchChain } = useSwitchChain();
+  const withdraw = async (amount: bigint) => {
+    await ensureArcNetwork(chainId, switchChain);
+    return (writeContractAsync as any)({ chainId: CHAIN_ID, address: CONTRACTS.vault, abi: VAULT_ABI, functionName: "withdraw", args: [amount] });
+  };
   return { withdraw, isPending };
 }
 
@@ -107,12 +130,20 @@ export function useMarket(id: number) {
 
 export function usePredict() {
   const { writeContractAsync, isPending } = useWriteContract();
-  const approveMarket = async (amount: bigint) =>
-    (writeContractAsync as any)({ chainId: CHAIN_ID, address: CONTRACTS.usdc, abi: ERC20_ABI, functionName: "approve", args: [CONTRACTS.predictionMarket, amount] });
-  const predict = async (marketId: number, side: boolean, amount: bigint) =>
-    (writeContractAsync as any)({ chainId: CHAIN_ID, address: CONTRACTS.predictionMarket, abi: MARKET_ABI, functionName: "predict", args: [BigInt(marketId), side, amount] });
-  const claimWinnings = async (marketId: number) =>
-    (writeContractAsync as any)({ chainId: CHAIN_ID, address: CONTRACTS.predictionMarket, abi: MARKET_ABI, functionName: "claimWinnings", args: [BigInt(marketId)] });
+  const chainId = useChainId();
+  const { switchChain } = useSwitchChain();
+  const approveMarket = async (amount: bigint) => {
+    await ensureArcNetwork(chainId, switchChain);
+    return (writeContractAsync as any)({ chainId: CHAIN_ID, address: CONTRACTS.usdc, abi: ERC20_ABI, functionName: "approve", args: [CONTRACTS.predictionMarket, amount] });
+  };
+  const predict = async (marketId: number, side: boolean, amount: bigint) => {
+    await ensureArcNetwork(chainId, switchChain);
+    return (writeContractAsync as any)({ chainId: CHAIN_ID, address: CONTRACTS.predictionMarket, abi: MARKET_ABI, functionName: "predict", args: [BigInt(marketId), side, amount] });
+  };
+  const claimWinnings = async (marketId: number) => {
+    await ensureArcNetwork(chainId, switchChain);
+    return (writeContractAsync as any)({ chainId: CHAIN_ID, address: CONTRACTS.predictionMarket, abi: MARKET_ABI, functionName: "claimWinnings", args: [BigInt(marketId)] });
+  };
   return { approveMarket, predict, claimWinnings, isPending };
 }
 
@@ -154,17 +185,27 @@ export function useLoanData() {
 
 export function useBorrow() {
   const { writeContractAsync, isPending } = useWriteContract();
-  const borrow = async (amount: bigint) =>
-    (writeContractAsync as any)({ chainId: CHAIN_ID, address: CONTRACTS.lendingEngine, abi: LENDING_ABI, functionName: "borrow", args: [amount] });
+  const chainId = useChainId();
+  const { switchChain } = useSwitchChain();
+  const borrow = async (amount: bigint) => {
+    await ensureArcNetwork(chainId, switchChain);
+    return (writeContractAsync as any)({ chainId: CHAIN_ID, address: CONTRACTS.lendingEngine, abi: LENDING_ABI, functionName: "borrow", args: [amount] });
+  };
   return { borrow, isPending };
 }
 
 export function useRepay() {
   const { writeContractAsync, isPending } = useWriteContract();
-  const approveLending = async (amount: bigint) =>
-    (writeContractAsync as any)({ chainId: CHAIN_ID, address: CONTRACTS.usdc, abi: ERC20_ABI, functionName: "approve", args: [CONTRACTS.lendingEngine, amount] });
-  const repay = async () =>
-    (writeContractAsync as any)({ chainId: CHAIN_ID, address: CONTRACTS.lendingEngine, abi: LENDING_ABI, functionName: "repay" });
+  const chainId = useChainId();
+  const { switchChain } = useSwitchChain();
+  const approveLending = async (amount: bigint) => {
+    await ensureArcNetwork(chainId, switchChain);
+    return (writeContractAsync as any)({ chainId: CHAIN_ID, address: CONTRACTS.usdc, abi: ERC20_ABI, functionName: "approve", args: [CONTRACTS.lendingEngine, amount] });
+  };
+  const repay = async () => {
+    await ensureArcNetwork(chainId, switchChain);
+    return (writeContractAsync as any)({ chainId: CHAIN_ID, address: CONTRACTS.lendingEngine, abi: LENDING_ABI, functionName: "repay" });
+  };
   return { approveLending, repay, isPending };
 }
 
