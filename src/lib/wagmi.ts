@@ -3,7 +3,7 @@
 import { createConfig, http } from "wagmi";
 import { hardhat } from "wagmi/chains";
 import { defineChain } from "viem";
-import { injected, coinbaseWallet } from "wagmi/connectors";
+import { injected, coinbaseWallet, walletConnect } from "wagmi/connectors";
 import { QueryClient } from "@tanstack/react-query";
 
 export const arcTestnet = defineChain({
@@ -31,10 +31,49 @@ export const arcTestnet = defineChain({
 
 export const queryClient = new QueryClient();
 
+// WalletConnect project ID — replace with your own from https://cloud.walletconnect.com
+const WC_PROJECT_ID = process.env.NEXT_PUBLIC_WC_PROJECT_ID ?? "YOUR_WC_PROJECT_ID";
+
 export const wagmiConfig = createConfig({
   chains: [arcTestnet, hardhat],
   connectors: [
-    injected(),
+    // Rabby, OKX, Zerion, and any other browser extension all come through injected()
+    // We create named instances so we can display them individually in the modal
+    injected({ target: "metaMask" }),
+    injected({
+      target() {
+        return {
+          id: "rabby",
+          name: "Rabby",
+          provider: typeof window !== "undefined"
+            ? (window as any).rabby ?? (window as any).ethereum
+            : undefined,
+        };
+      },
+    }),
+    injected({
+      target() {
+        return {
+          id: "okx",
+          name: "OKX Wallet",
+          provider: typeof window !== "undefined"
+            ? (window as any).okxwallet ?? (window as any).ethereum
+            : undefined,
+        };
+      },
+    }),
+    injected({
+      target() {
+        return {
+          id: "zerion",
+          name: "Zerion",
+          provider: typeof window !== "undefined"
+            ? (window as any).zerionWallet ?? (window as any).ethereum
+            : undefined,
+        };
+      },
+    }),
+    walletConnect({ projectId: WC_PROJECT_ID }),
     coinbaseWallet({ appName: "ArcIQ" }),
   ],
   transports: {
