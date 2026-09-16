@@ -339,7 +339,7 @@ export default function LandingPage() {
               <div className="inline-flex items-center gap-2.5 mb-8 px-4 py-2 rounded-full border border-[var(--border-default)] bg-white/3 text-[12px] font-medium text-[var(--text-secondary)]">
                 <span className="w-1.5 h-1.5 rounded-full bg-[var(--yes-color)]"
                   style={{ animation: "pulse-dot 2s ease-in-out infinite" }} />
-                Live on Arc Testnet · Chain ID 5042002
+                Built on Arc
               </div>
 
               <h1 className="font-black tracking-tight leading-[1.06] mb-6"
