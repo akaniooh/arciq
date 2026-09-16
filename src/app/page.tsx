@@ -261,13 +261,22 @@ export default function LandingPage() {
             ))}
           </div>
 
-          <Link href="/dashboard"
-            className="btn-primary flex items-center gap-2 text-[13px] px-5 py-2.5">
-            Launch App
-            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-            </svg>
-          </Link>
+          <div className="flex items-center gap-3">
+            <a href="https://x.com/lendiqx" target="_blank" rel="noopener noreferrer"
+              aria-label="Lendiq on X"
+              className="hidden sm:flex items-center justify-center w-9 h-9 rounded-xl border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/5 transition-all">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+              </svg>
+            </a>
+            <Link href="/dashboard"
+              className="btn-primary flex items-center gap-2 text-[13px] px-5 py-2.5">
+              Launch App
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+              </svg>
+            </Link>
+          </div>
         </div>
       </nav>
 
@@ -583,6 +592,13 @@ export default function LandingPage() {
           <a href="https://testnet.arcscan.app" target="_blank" rel="noopener noreferrer"
             className="hover:text-[var(--text-primary)] transition-colors underline underline-offset-2">
             ArcScan ↗
+          </a>
+          <a href="https://x.com/lendiqx" target="_blank" rel="noopener noreferrer"
+            aria-label="Lendiq on X"
+            className="flex items-center justify-center w-8 h-8 rounded-lg border border-[var(--border-subtle)] text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:border-[var(--text-primary)]/30 transition-colors">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+            </svg>
           </a>
         </div>
       </footer>
